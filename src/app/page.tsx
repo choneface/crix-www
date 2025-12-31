@@ -414,7 +414,7 @@ export default function Page() {
                         <a className="bevel btn" href="/docs">
                           DOCS
                         </a>
-                        <a className="bevel btn" href="/builder">
+                        <a className="bevel btn" href="https://builder.crix.dev">
                           BUILDER
                         </a>
 
@@ -580,7 +580,7 @@ export default function Page() {
                                     </a>
                                     <a
                                         className="bevel btn"
-                                        href="/builder"
+                                        href="https://builder.crix.dev"
                                         style={{
                                           background: "var(--accent2)",
                                           color: "#000",
@@ -736,7 +736,7 @@ export default function Page() {
                                     </a>
                                     <a
                                         className="bevel btn"
-                                        href="/builder"
+                                        href="https://builder.crix.dev"
                                         style={{
                                           minWidth: 160,
                                           background: "var(--accent2)",
@@ -831,7 +831,7 @@ export default function Page() {
 
                     <div className="mt-6 panel">
                       <div className="p-3 ui" style={{ fontSize: 12 }}>
-                        © 2025 CRIX • <a href="/docs">DOCS</a> • <a href="/builder">BUILDER</a>
+                        © 2025 CRIX • <a href="/docs">DOCS</a> • <a href="https://builder.crix.dev">BUILDER</a>
                       </div>
                     </div>
                   </div>
