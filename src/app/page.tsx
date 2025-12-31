@@ -506,17 +506,6 @@ export default function Page() {
 
                       {/* Skin toggle */}
                       <div className="ml-2 flex items-center gap-2">
-                        <div
-                            className="px-3 py-2 rounded-full glossy-pill"
-                            style={{
-                              fontFamily: "Tahoma, sans-serif",
-                              fontSize: 12,
-                              color: "var(--ink2)",
-                            }}
-                        >
-                          Skin
-                        </div>
-
                         <select
                             value={skinId}
                             onChange={(e) => setSkinId(e.target.value as SkinId)}
