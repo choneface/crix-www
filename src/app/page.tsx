@@ -9,7 +9,6 @@ type Skin = {
   id: SkinId;
   name: string;
   vars: Record<string, string>;
-  pageBg?: string;
 };
 
 const SKINS: Record<SkinId, Skin> = {
@@ -74,18 +73,18 @@ const SKINS: Record<SkinId, Skin> = {
     id: "neocities",
     name: "Neocities",
     vars: {
-      "--bg": "#c0c0c0",
-      "--panel": "#d4d4d4",
-      "--panel2": "#e8e8e8",
-      "--text": "#000000",
-      "--muted": "#222222",
-      "--borderDark": "#000000",
-      "--borderMid": "#808080",
-      "--borderLight": "#ffffff",
-      "--accent": "#0000ff",
-      "--accent2": "#008000",
-      "--accent3": "#ff00ff",
-      "--shadow": "#808080",
+      "--bg": "#000000",
+      "--panel": "#0d0d0d",
+      "--panel2": "#151515",
+      "--text": "#ffffff",
+      "--muted": "#c7c7c7",
+      "--borderDark": "#00ffff",
+      "--borderMid": "#ff00ff",
+      "--borderLight": "#ffff00",
+      "--accent": "#00ffff",
+      "--accent2": "#ff00ff",
+      "--accent3": "#ffff00",
+      "--shadow": "#000000",
       "--font": `ui-monospace, "Minecraftia", "Press Start 2P", "VT323", "MS Sans Serif", "Tahoma", monospace`,
     },
   },
@@ -123,7 +122,7 @@ export default function Page() {
           if (!done) {
             done = true;
             window.clearInterval(timer);
-            window.setTimeout(() => setShowSplash(false), 250);
+            window.setTimeout(() => setShowSplash(false), 220);
           }
           return 100;
         }
@@ -144,6 +143,9 @@ export default function Page() {
 
   const cssVars = useMemo(() => skin.vars as React.CSSProperties, [skin]);
 
+  const isTerminal = skinId === "terminal";
+  const isNeo = skinId === "neocities";
+
   return (
       <div
           className="min-h-screen w-full"
@@ -157,16 +159,14 @@ export default function Page() {
         <style>{`
         * { box-sizing: border-box; }
         a { color: var(--accent); text-decoration: underline; }
-        .pixel { image-rendering: pixelated; }
         .ui { font-family: var(--font); letter-spacing: 0.02em; }
+        .pixel { image-rendering: pixelated; }
 
-        /* Classic square panel */
         .panel {
           background: var(--panel);
           border: 1px solid var(--borderDark);
         }
 
-        /* Fake Win9x bevel (hard, square) */
         .bevel {
           border-top: 2px solid var(--borderLight);
           border-left: 2px solid var(--borderLight);
@@ -191,19 +191,18 @@ export default function Page() {
           font-size: 14px;
           line-height: 1;
         }
-        .btn:active {
-          transform: translate(1px, 1px);
-        }
+        .btn:active { transform: translate(1px, 1px); }
 
         .titlebar {
           background: var(--accent);
-          color: #fff;
+          color: #000;
           padding: 6px 8px;
           border-bottom: 1px solid var(--borderDark);
           display: flex;
           align-items: center;
           justify-content: space-between;
           font-size: 14px;
+          text-transform: uppercase;
         }
 
         .win-controls { display: flex; gap: 6px; }
@@ -213,34 +212,7 @@ export default function Page() {
           background: var(--panel2);
         }
 
-        .grid-bg {
-          background-image:
-            linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
-          background-size: 16px 16px;
-        }
-
-        .marquee {
-          white-space: nowrap;
-          overflow: hidden;
-          border-top: 1px solid var(--borderDark);
-          border-bottom: 1px solid var(--borderDark);
-          background: var(--panel2);
-        }
-        .marquee span {
-          display: inline-block;
-          padding-left: 100%;
-          animation: scroll 10s linear infinite;
-        }
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-100%); }
-        }
-
-        /* Terminal extras */
-        .crt {
-          position: relative;
-        }
+        .crt { position: relative; }
         .crt::before {
           content: "";
           position: absolute;
@@ -255,6 +227,87 @@ export default function Page() {
           );
           opacity: 0.65;
         }
+
+        /* --- Neocities sauce --- */
+        .neo-bg {
+          /* "tiled gif" vibe: starfield + confetti + checker */
+          background-image:
+            radial-gradient(#ffffff 1px, transparent 1px),
+            radial-gradient(#00ffff 1px, transparent 1px),
+            radial-gradient(#ff00ff 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,0,0.10) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,0,0.10) 1px, transparent 1px);
+          background-size:
+            24px 24px,
+            36px 36px,
+            48px 48px,
+            16px 16px,
+            16px 16px;
+          background-position:
+            0 0,
+            10px 6px,
+            18px 14px,
+            0 0,
+            0 0;
+        }
+
+        .blink {
+          animation: blink 1s steps(1, end) infinite;
+        }
+        @keyframes blink {
+          50% { opacity: 0; }
+        }
+
+        .marquee {
+          white-space: nowrap;
+          overflow: hidden;
+          border-top: 1px solid var(--borderDark);
+          border-bottom: 1px solid var(--borderDark);
+          background: var(--panel2);
+        }
+        .marquee span {
+          display: inline-block;
+          padding-left: 100%;
+          animation: scroll 9s linear infinite;
+        }
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-100%); }
+        }
+
+        .neo-link {
+          display: block;
+          padding: 6px 8px;
+          border: 1px solid var(--borderDark);
+          background: #000;
+          color: var(--accent);
+          text-decoration: none;
+          text-transform: uppercase;
+          font-size: 12px;
+        }
+        .neo-link:hover {
+          background: var(--accent2);
+          color: #000;
+        }
+
+        .badge {
+          border: 1px solid var(--borderDark);
+          background: #000;
+          color: #fff;
+          font-size: 10px;
+          padding: 6px 8px;
+          text-transform: uppercase;
+          text-align: center;
+        }
+
+        .counter {
+          border: 1px solid var(--borderDark);
+          background: #000;
+          color: var(--accent3);
+          font-size: 14px;
+          padding: 6px 10px;
+          letter-spacing: 0.2em;
+        }
       `}</style>
 
         <AnimatePresence mode="wait">
@@ -263,11 +316,11 @@ export default function Page() {
                   key="splash"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="min-h-screen w-full flex items-center justify-center p-6"
+                  transition={{ duration: 0.12 }}
+                  className={`min-h-screen w-full flex items-center justify-center p-6 ${isNeo ? "neo-bg" : ""}`}
               >
-                <div className={`panel ui w-full max-w-xl ${skinId === "terminal" ? "crt" : ""}`}>
-                  <div className="titlebar">
+                <div className={`panel ui w-full max-w-xl ${isTerminal ? "crt" : ""}`}>
+                  <div className="titlebar" style={{ color: isNeo ? "#000" : "#fff" }}>
                     <div>CRIX.EXE</div>
                     <div className="win-controls">
                       <div className="win-btn" />
@@ -293,10 +346,7 @@ export default function Page() {
 
                       <div className="mt-4">
                         <div className="bevel p-2">
-                          <div
-                              className="bevel-inset"
-                              style={{ height: 18, position: "relative", overflow: "hidden" }}
-                          >
+                          <div className="bevel-inset" style={{ height: 18, position: "relative", overflow: "hidden" }}>
                             <div
                                 style={{
                                   position: "absolute",
@@ -328,13 +378,13 @@ export default function Page() {
                   key="main"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.15 }}
-                  className={`min-h-screen w-full p-4 md:p-8 ${skinId === "neocities" ? "grid-bg" : ""}`}
+                  transition={{ duration: 0.12 }}
+                  className={`min-h-screen w-full p-4 md:p-8 ${isNeo ? "neo-bg" : ""}`}
               >
-                {/* Top "window" */}
-                <div className={`panel ui max-w-6xl mx-auto ${skinId === "terminal" ? "crt" : ""}`}>
-                  <div className="titlebar">
-                    <div>CRIX WEBSITE — MS PAINT MODE</div>
+                {/* Top window */}
+                <div className={`panel ui max-w-6xl mx-auto ${isTerminal ? "crt" : ""}`}>
+                  <div className="titlebar" style={{ color: isNeo ? "#000" : "#fff" }}>
+                    <div>{isNeo ? "CRIX — MY COOL SITE" : "CRIX WEBSITE — MS PAINT MODE"}</div>
                     <div className="win-controls">
                       <div className="win-btn" />
                       <div className="win-btn" />
@@ -342,6 +392,7 @@ export default function Page() {
                     </div>
                   </div>
 
+                  {/* Toolbar row */}
                   <div className="p-3 border-b" style={{ borderColor: "var(--borderDark)" }}>
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                       <div className="flex items-center gap-2">
@@ -349,8 +400,14 @@ export default function Page() {
                           CRIX.DEV
                         </div>
                         <div className="bevel-inset px-3 py-2" style={{ fontSize: 12 }}>
-                          A SKINNED UI FRAMEWORK
+                          SKINNED UI FRAMEWORK
                         </div>
+
+                        {isNeo && (
+                            <div className="bevel px-3 py-2 blink" style={{ fontSize: 12, color: "var(--accent3)" }}>
+                              NEW
+                            </div>
+                        )}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
@@ -385,159 +442,396 @@ export default function Page() {
                     </div>
                   </div>
 
-                  {skinId === "neocities" && (
+                  {/* Neocities marquee */}
+                  {isNeo && (
                       <div className="marquee ui" style={{ fontSize: 12 }}>
                   <span>
-                    WELCOME TO CRIX • BEST VIEWED IN 1024x768 • CLICK EVERYTHING • SIGN MY GUESTBOOK
-                    • DOWNLOAD NOW •
+                    BEST VIEWED IN 1024x768 • CLICK MY LINKS • SIGN MY GUESTBOOK • JOIN MY WEBRING •
+                    DOWNLOAD CRIX •
                   </span>
                       </div>
                   )}
 
-                  {/* Content area */}
+                  {/* Body */}
                   <div className="p-4 md:p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                      {/* Left big window */}
-                      <div className="lg:col-span-2">
-                        <div className="panel">
-                          <div className="titlebar">
-                            <div>INTRO.TXT</div>
-                            <div className="win-controls">
-                              <div className="win-btn" />
-                              <div className="win-btn" />
-                              <div className="win-btn" />
-                            </div>
-                          </div>
-
-                          <div className="p-4">
-                            <div className="bevel-inset p-4">
-                              <div style={{ fontSize: 22, fontWeight: 900 }}>CRIX UI FRAMEWORK</div>
-                              <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.35 }}>
-                                Crix is a framework for skinned UIs.
-                                <br />
-                                The look is data. Components are logic.
-                                <br />
-                                Swap skins. Ship vibes.
+                    {isNeo ? (
+                        // --- Neocities layout ---
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                          {/* Left sidebar */}
+                          <div className="lg:col-span-3 space-y-4">
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>LINKS</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
                               </div>
-
-                              <div className="mt-4 flex flex-wrap gap-2">
-                                {[
-                                  "THEMES AS DATA",
-                                  "SQUARE PIXEL UI",
-                                  "BUILDER OUTPUT",
-                                  "CROSS-PLATFORM",
-                                  "NO SOFTNESS ALLOWED",
-                                ].map((tag) => (
-                                    <div key={tag} className="bevel px-3 py-2" style={{ fontSize: 12 }}>
-                                      {tag}
-                                    </div>
-                                ))}
-                              </div>
-
-                              <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                                <a className="bevel btn" href="/docs" style={{ minWidth: 160 }}>
-                                  OPEN DOCS
+                              <div className="p-3 space-y-2">
+                                <a className="neo-link" href="/docs">
+                                  DOCS
                                 </a>
-                                <a
-                                    className="bevel btn"
-                                    href="/builder"
-                                    style={{
-                                      minWidth: 160,
-                                      background: "var(--accent2)",
-                                      color: skinId === "terminal" ? "#000" : "#fff",
-                                      borderTop: "2px solid var(--borderLight)",
-                                      borderLeft: "2px solid var(--borderLight)",
-                                      borderRight: "2px solid var(--borderMid)",
-                                      borderBottom: "2px solid var(--borderMid)",
-                                    }}
-                                >
-                                  OPEN BUILDER
+                                <a className="neo-link" href="/builder">
+                                  BUILDER
+                                </a>
+                                <a className="neo-link" href="#">
+                                  DOWNLOAD
+                                </a>
+                                <a className="neo-link" href="#">
+                                  CHANGELOG
+                                </a>
+                                <a className="neo-link" href="#">
+                                  GUESTBOOK
                                 </a>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      </div>
 
-                      {/* Right sidebar */}
-                      <div className="space-y-4">
-                        <div className="panel">
-                          <div className="titlebar">
-                            <div>WHY</div>
-                            <div className="win-controls">
-                              <div className="win-btn" />
-                              <div className="win-btn" />
-                              <div className="win-btn" />
-                            </div>
-                          </div>
-                          <div className="p-3">
-                            <div className="bevel-inset p-3" style={{ fontSize: 13, lineHeight: 1.35 }}>
-                              Most UI kits hardcode a vibe.
-                              <br />
-                              Crix ships a vibe engine.
-                              <br />
-                              If your app needs skins, Crix is the point.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="panel">
-                          <div className="titlebar">
-                            <div>DOWNLOAD</div>
-                            <div className="win-controls">
-                              <div className="win-btn" />
-                              <div className="win-btn" />
-                              <div className="win-btn" />
-                            </div>
-                          </div>
-                          <div className="p-3">
-                            <div className="bevel-inset p-3">
-                              <div style={{ fontSize: 12, color: "var(--muted)" }}>
-                                Crix Runner (placeholder)
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>BADGES</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
                               </div>
-                              <div className="mt-2 grid grid-cols-3 gap-2">
-                                {["WIN", "MAC", "LINUX"].map((p) => (
-                                    <button key={p} className="bevel btn">
-                                      {p}
-                                    </button>
-                                ))}
-                              </div>
-                              <div className="mt-2" style={{ fontSize: 12 }}>
-                                <a href="#">RELEASE NOTES</a>
+                              <div className="p-3 grid grid-cols-2 gap-2">
+                                <div className="badge">MADE WITH MS PAINT</div>
+                                <div className="badge">NO CSS GRADIENTS</div>
+                                <div className="badge">SKIN ENGINE INSIDE</div>
+                                <div className="badge">FRAMES: MAYBE</div>
+                                <div className="badge">UNDER CONSTRUCTION</div>
+                                <div className="badge">CRIX FAN PAGE</div>
                               </div>
                             </div>
-                          </div>
-                        </div>
 
-                        <div className="panel">
-                          <div className="titlebar">
-                            <div>STATUS</div>
-                            <div className="win-controls">
-                              <div className="win-btn" />
-                              <div className="win-btn" />
-                              <div className="win-btn" />
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>WEBRING</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="bevel-inset p-3" style={{ fontSize: 12, lineHeight: 1.35 }}>
+                                  YOU ARE NOW ENTERING:
+                                  <br />
+                                  THE SKINNED-UI WEBRING
+                                  <div className="mt-3 grid grid-cols-3 gap-2">
+                                    <button className="bevel btn">PREV</button>
+                                    <button className="bevel btn">RANDO</button>
+                                    <button className="bevel btn">NEXT</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>HITS</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3 flex items-center justify-between gap-3">
+                                <div style={{ fontSize: 12 }}>YOU ARE VISITOR #</div>
+                                <div className="counter">004239</div>
+                              </div>
                             </div>
                           </div>
-                          <div className="p-3">
-                            <div className="bevel-inset p-3" style={{ fontSize: 12, lineHeight: 1.35 }}>
-                              UI: SQUARE
-                              <br />
-                              GRADIENTS: NO
-                              <br />
-                              BLUR: ILLEGAL
-                              <br />
-                              STYLE: MS PAINT
+
+                          {/* Center content */}
+                          <div className="lg:col-span-6 space-y-4">
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>WELCOME</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-4">
+                                <div className="bevel-inset p-4">
+                                  <div style={{ fontSize: 22, fontWeight: 900, textTransform: "uppercase" }}>
+                                    CRIX UI FRAMEWORK
+                                  </div>
+                                  <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.35 }}>
+                                    THIS WEBSITE HAS SKINS BECAUSE THE FRAMEWORK HAS SKINS.
+                                    <br />
+                                    COMPONENTS = LOGIC.
+                                    <br />
+                                    SKINS = VIBE.
+                                  </div>
+
+                                  <div className="mt-4 bevel p-3" style={{ fontSize: 12 }}>
+                                    <div style={{ color: "var(--accent3)" }}>TIP:</div>
+                                    TRY THE TERMINAL SKIN. IT IS VERY SERIOUS.
+                                  </div>
+
+                                  <div className="mt-4 grid grid-cols-2 gap-2">
+                                    <a className="bevel btn" href="/docs">
+                                      OPEN DOCS
+                                    </a>
+                                    <a
+                                        className="bevel btn"
+                                        href="/builder"
+                                        style={{
+                                          background: "var(--accent2)",
+                                          color: "#000",
+                                          borderTop: "2px solid var(--borderLight)",
+                                          borderLeft: "2px solid var(--borderLight)",
+                                          borderRight: "2px solid var(--borderMid)",
+                                          borderBottom: "2px solid var(--borderMid)",
+                                        }}
+                                    >
+                                      OPEN BUILDER
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>WHAT IS A SKIN?</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-4">
+                                <div className="bevel-inset p-4" style={{ fontSize: 13, lineHeight: 1.35 }}>
+                                  A SKIN IS A DATA FILE THAT DEFINES:
+                                  <ul style={{ marginTop: 10, paddingLeft: 18 }}>
+                                    <li>COLORS</li>
+                                    <li>BORDERS</li>
+                                    <li>TYPOGRAPHY</li>
+                                    <li>BUTTON MATERIALS</li>
+                                    <li>CURSOR / ICONS</li>
+                                  </ul>
+                                  <div className="mt-3 bevel p-3" style={{ fontSize: 12 }}>
+                                    THIS SITE IS A DEMO APP FOR THE SKIN SYSTEM.
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right sidebar */}
+                          <div className="lg:col-span-3 space-y-4">
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>GUESTBOOK</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="bevel-inset p-3" style={{ fontSize: 12, lineHeight: 1.35 }}>
+                                  SIGN MY GUESTBOOK!!!
+                                  <div className="mt-2 bevel p-2" style={{ background: "#000", color: "var(--accent)" }}>
+                                    NAME: ____________
+                                    <br />
+                                    MESSAGE: ____________
+                                  </div>
+                                  <button className="bevel btn mt-2">SUBMIT</button>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>BEST VIEWED</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="bevel-inset p-3" style={{ fontSize: 12, lineHeight: 1.35 }}>
+                                  BEST VIEWED IN:
+                                  <div className="mt-2 bevel p-2">1024 x 768</div>
+                                  <div className="mt-2 bevel p-2">
+                              <span className="blink" style={{ color: "var(--accent3)" }}>
+                                UNDER CONSTRUCTION
+                              </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#000" }}>
+                                <div>UPDATES</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="bevel-inset p-3" style={{ fontSize: 12, lineHeight: 1.35 }}>
+                                  12/30/2025: ADDED SKINS
+                                  <br />
+                                  12/30/2025: MADE IT WORSE
+                                  <br />
+                                  12/30/2025: NEOCITIES MODE
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
+                    ) : (
+                        // --- Default (Paint/Terminal/Dark) layout ---
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                          <div className="lg:col-span-2">
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: skinId === "paint" ? "#fff" : "#fff" }}>
+                                <div>INTRO.TXT</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
 
-                    {/* Footer */}
+                              <div className="p-4">
+                                <div className="bevel-inset p-4">
+                                  <div style={{ fontSize: 22, fontWeight: 900 }}>CRIX UI FRAMEWORK</div>
+                                  <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.35 }}>
+                                    Crix is a framework for skinned UIs.
+                                    <br />
+                                    The look is data. Components are logic.
+                                    <br />
+                                    Swap skins. Ship platforms.
+                                  </div>
+
+                                  <div className="mt-4 flex flex-wrap gap-2">
+                                    {[
+                                      "THEMES AS DATA",
+                                      "SQUARE PIXEL UI",
+                                      "BUILDER OUTPUT",
+                                      "CROSS-PLATFORM",
+                                      "NO SOFTNESS ALLOWED",
+                                    ].map((tag) => (
+                                        <div key={tag} className="bevel px-3 py-2" style={{ fontSize: 12 }}>
+                                          {tag}
+                                        </div>
+                                    ))}
+                                  </div>
+
+                                  <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                                    <a className="bevel btn" href="/docs" style={{ minWidth: 160 }}>
+                                      OPEN DOCS
+                                    </a>
+                                    <a
+                                        className="bevel btn"
+                                        href="/builder"
+                                        style={{
+                                          minWidth: 160,
+                                          background: "var(--accent2)",
+                                          color: skinId === "terminal" ? "#000" : "#fff",
+                                          borderTop: "2px solid var(--borderLight)",
+                                          borderLeft: "2px solid var(--borderLight)",
+                                          borderRight: "2px solid var(--borderMid)",
+                                          borderBottom: "2px solid var(--borderMid)",
+                                        }}
+                                    >
+                                      OPEN BUILDER
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#fff" }}>
+                                <div>WHY</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="bevel-inset p-3" style={{ fontSize: 13, lineHeight: 1.35 }}>
+                                  Most UI kits hardcode a feeling.
+                                  <br />
+                                  Crix ships an engine.
+                                  <br />
+                                  If your app needs skins, Crix is the point.
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#fff" }}>
+                                <div>DOWNLOAD</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="bevel-inset p-3">
+                                  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+                                    Crix Runner (placeholder)
+                                  </div>
+                                  <div className="mt-2 grid grid-cols-3 gap-2">
+                                    {["WIN", "MAC", "LINUX"].map((p) => (
+                                        <button key={p} className="bevel btn">
+                                          {p}
+                                        </button>
+                                    ))}
+                                  </div>
+                                  <div className="mt-2" style={{ fontSize: 12 }}>
+                                    <a href="#">RELEASE NOTES</a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="panel">
+                              <div className="titlebar" style={{ color: "#fff" }}>
+                                <div>STATUS</div>
+                                <div className="win-controls">
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                  <div className="win-btn" />
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="bevel-inset p-3" style={{ fontSize: 12, lineHeight: 1.35 }}>
+                                  UI: SQUARE
+                                  <br />
+                                  GRADIENTS: NO
+                                  <br />
+                                  BLUR: ILLEGAL
+                                  <br />
+                                  STYLE: MS PAINT
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    )}
+
                     <div className="mt-6 panel">
                       <div className="p-3 ui" style={{ fontSize: 12 }}>
-                        © 2025 CRIX • THIS PAGE IS INTENTIONALLY UGLY •{" "}
-                        <a href="/docs">DOCS</a> • <a href="/builder">BUILDER</a>
+                        © 2025 CRIX • <a href="/docs">DOCS</a> • <a href="/builder">BUILDER</a>
                       </div>
                     </div>
                   </div>
