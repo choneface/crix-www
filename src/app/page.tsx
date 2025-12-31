@@ -3,9 +3,165 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 
+type SkinId = "y2k" | "terminal" | "dark" | "neocities";
+
+type Skin = {
+  id: SkinId;
+  name: string;
+  vars: Record<string, string>;
+  background: string; // page background behind everything
+  heroOverlay: string; // overlay on top of hero image
+  showNoise?: boolean;
+  scanlines?: boolean;
+  tileBg?: boolean;
+};
+
+const SKINS: Record<SkinId, Skin> = {
+  y2k: {
+    id: "y2k",
+    name: "Y2K Aqua",
+    vars: {
+      "--ink": "#0b2a4a",
+      "--ink2": "rgba(11,42,74,0.78)",
+      "--chromeTop": "rgba(255,255,255,0.92)",
+      "--chromeMid": "rgba(255,255,255,0.68)",
+      "--chromeLow": "rgba(210,240,255,0.62)",
+      "--chromeBot": "rgba(255,255,255,0.86)",
+      "--line": "rgba(255,255,255,0.78)",
+      "--shadow": "rgba(0,0,0,0.12)",
+      "--accent1": "#2ee7d1",
+      "--accent2": "#63b7ff",
+      "--accent3": "#3f7dff",
+      "--mutedBg": "#f2f8ff",
+      "--pillTop": "rgba(255,255,255,0.92)",
+      "--pillMid": "rgba(255,255,255,0.64)",
+      "--pillBot": "rgba(255,255,255,0.40)",
+      "--noiseOpacity": "0.26",
+    },
+    background: "linear-gradient(180deg, #f2f8ff 0%, #eafcff 50%, #f6fffb 100%)",
+    heroOverlay:
+        "radial-gradient(circle at 20% 25%, rgba(46,231,209,0.42) 0%, transparent 55%)," +
+        "radial-gradient(circle at 75% 30%, rgba(99,183,255,0.45) 0%, transparent 55%)," +
+        "linear-gradient(135deg, rgba(63,125,255,0.66) 0%, rgba(11,42,74,0.50) 42%, rgba(191,255,231,0.22) 100%)",
+    showNoise: true,
+  },
+
+  terminal: {
+    id: "terminal",
+    name: "Terminal",
+    vars: {
+      "--ink": "#b7ffcf",
+      "--ink2": "rgba(183,255,207,0.75)",
+      "--chromeTop": "rgba(3,12,8,0.92)",
+      "--chromeMid": "rgba(3,12,8,0.75)",
+      "--chromeLow": "rgba(4,16,10,0.72)",
+      "--chromeBot": "rgba(2,10,7,0.92)",
+      "--line": "rgba(183,255,207,0.22)",
+      "--shadow": "rgba(0,0,0,0.35)",
+      "--accent1": "#20ff8a",
+      "--accent2": "#00d07a",
+      "--accent3": "#a8ff2a",
+      "--mutedBg": "#020a07",
+      "--pillTop": "rgba(3,12,8,0.92)",
+      "--pillMid": "rgba(3,12,8,0.70)",
+      "--pillBot": "rgba(2,10,7,0.92)",
+      "--noiseOpacity": "0.18",
+    },
+    background:
+        "radial-gradient(circle at 30% 20%, rgba(32,255,138,0.12) 0%, transparent 50%)," +
+        "linear-gradient(180deg, #020a07 0%, #010604 100%)",
+    heroOverlay:
+        "radial-gradient(circle at 20% 25%, rgba(32,255,138,0.18) 0%, transparent 55%)," +
+        "linear-gradient(135deg, rgba(0,0,0,0.78) 0%, rgba(0,14,8,0.74) 55%, rgba(32,255,138,0.10) 100%)",
+    showNoise: true,
+    scanlines: true,
+  },
+
+  dark: {
+    id: "dark",
+    name: "Dark Glass",
+    vars: {
+      "--ink": "#e9f2ff",
+      "--ink2": "rgba(233,242,255,0.75)",
+      "--chromeTop": "rgba(18,22,32,0.82)",
+      "--chromeMid": "rgba(18,22,32,0.66)",
+      "--chromeLow": "rgba(18,22,32,0.62)",
+      "--chromeBot": "rgba(18,22,32,0.82)",
+      "--line": "rgba(255,255,255,0.12)",
+      "--shadow": "rgba(0,0,0,0.45)",
+      "--accent1": "#7dd3fc",
+      "--accent2": "#34d399",
+      "--accent3": "#a78bfa",
+      "--mutedBg": "#0b0f18",
+      "--pillTop": "rgba(255,255,255,0.10)",
+      "--pillMid": "rgba(255,255,255,0.06)",
+      "--pillBot": "rgba(255,255,255,0.10)",
+      "--noiseOpacity": "0.14",
+    },
+    background:
+        "radial-gradient(circle at 20% 20%, rgba(125,211,252,0.12) 0%, transparent 55%)," +
+        "radial-gradient(circle at 75% 35%, rgba(52,211,153,0.10) 0%, transparent 60%)," +
+        "linear-gradient(180deg, #0b0f18 0%, #070a10 100%)",
+    heroOverlay:
+        "radial-gradient(circle at 25% 25%, rgba(125,211,252,0.20) 0%, transparent 60%)," +
+        "linear-gradient(135deg, rgba(0,0,0,0.62) 0%, rgba(11,15,24,0.72) 55%, rgba(167,139,250,0.10) 100%)",
+    showNoise: false,
+  },
+
+  neocities: {
+    id: "neocities",
+    name: "Neocities",
+    vars: {
+      "--ink": "#0b1c2a",
+      "--ink2": "rgba(11,28,42,0.78)",
+      "--chromeTop": "rgba(255,255,255,0.88)",
+      "--chromeMid": "rgba(255,255,255,0.62)",
+      "--chromeLow": "rgba(255,255,255,0.55)",
+      "--chromeBot": "rgba(255,255,255,0.82)",
+      "--line": "rgba(0,0,0,0.10)",
+      "--shadow": "rgba(0,0,0,0.18)",
+      "--accent1": "#00c2ff",
+      "--accent2": "#00ff9d",
+      "--accent3": "#ffd000",
+      "--mutedBg": "#f7fff6",
+      "--pillTop": "rgba(255,255,255,0.92)",
+      "--pillMid": "rgba(255,255,255,0.70)",
+      "--pillBot": "rgba(255,255,255,0.50)",
+      "--noiseOpacity": "0.18",
+    },
+    background:
+        "linear-gradient(180deg, rgba(247,255,246,1) 0%, rgba(235,252,255,1) 55%, rgba(255,252,234,1) 100%)",
+    heroOverlay:
+        "radial-gradient(circle at 15% 25%, rgba(0,194,255,0.35) 0%, transparent 55%)," +
+        "radial-gradient(circle at 80% 30%, rgba(0,255,157,0.22) 0%, transparent 60%)," +
+        "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(11,28,42,0.42) 50%, rgba(255,208,0,0.10) 100%)",
+    showNoise: false,
+    tileBg: true,
+  },
+};
+
+function getInitialSkin(): SkinId {
+  if (typeof window === "undefined") return "y2k";
+  const saved = window.localStorage.getItem("crix-skin") as SkinId | null;
+  return saved && SKINS[saved] ? saved : "y2k";
+}
+
 export default function Page() {
+  const [skinId, setSkinId] = useState<SkinId>("y2k");
+  const skin = SKINS[skinId];
+
   const [progress, setProgress] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    setSkinId(getInitialSkin());
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("crix-skin", skinId);
+    }
+  }, [skinId]);
 
   useEffect(() => {
     let done = false;
@@ -35,24 +191,17 @@ export default function Page() {
     return "Ready.";
   }, [progress]);
 
-  return (
-      <div className="min-h-screen w-full">
-        <style>{`
-        :root{
-          --ink: #0b2a4a;
-          --ink2: rgba(11,42,74,0.78);
-          --glass: rgba(255,255,255,0.62);
-          --glass2: rgba(255,255,255,0.42);
-          --line: rgba(255,255,255,0.72);
-          --shadow: rgba(0,0,0,0.14);
-          --blue1: #63b7ff;
-          --blue2: #3f7dff;
-          --teal1: #2ee7d1;
-          --teal2: #1fb2c8;
-          --mint: #bfffe7;
-          --lilac: rgba(170,190,255,0.22);
-        }
+  const cssVars = useMemo(() => skin.vars as React.CSSProperties, [skin]);
 
+  return (
+      <div
+          className="min-h-screen w-full"
+          style={{
+            ...(cssVars as any),
+            background: skin.background,
+          }}
+      >
+        <style>{`
         .y2k-noise {
           background-image:
             radial-gradient(circle at 12% 15%, rgba(255,255,255,0.20) 0%, transparent 40%),
@@ -60,41 +209,59 @@ export default function Page() {
             radial-gradient(circle at 30% 85%, rgba(255,255,255,0.12) 0%, transparent 50%),
             repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 4px);
           mix-blend-mode: overlay;
-          opacity: 0.28;
+          opacity: var(--noiseOpacity, 0.22);
           pointer-events: none;
+        }
+
+        .scanlines::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: repeating-linear-gradient(
+            to bottom,
+            rgba(0,0,0,0.0) 0px,
+            rgba(0,0,0,0.0) 2px,
+            rgba(0,0,0,0.16) 3px,
+            rgba(0,0,0,0.0) 4px
+          );
+          opacity: 0.22;
+          mix-blend-mode: multiply;
         }
 
         .chrome {
           background:
             linear-gradient(180deg,
-              rgba(255,255,255,0.92) 0%,
-              rgba(255,255,255,0.68) 40%,
-              rgba(210,240,255,0.62) 60%,
-              rgba(255,255,255,0.86) 100%);
-          border: 1px solid rgba(255,255,255,0.82);
+              var(--chromeTop) 0%,
+              var(--chromeMid) 40%,
+              var(--chromeLow) 60%,
+              var(--chromeBot) 100%);
+          border: 1px solid var(--line);
           box-shadow:
-            0 14px 40px rgba(0,0,0,0.14),
-            inset 0 2px 0 rgba(255,255,255,0.92),
-            inset 0 -10px 22px rgba(99,183,255,0.10);
+            0 14px 40px var(--shadow),
+            inset 0 2px 0 rgba(255,255,255,0.28);
           backdrop-filter: blur(14px);
         }
 
         .glossy-pill {
           background:
             linear-gradient(180deg,
-              rgba(255,255,255,0.92) 0%,
-              rgba(255,255,255,0.64) 55%,
-              rgba(255,255,255,0.40) 100%);
-          border: 1px solid rgba(255,255,255,0.82);
+              var(--pillTop) 0%,
+              var(--pillMid) 55%,
+              var(--pillBot) 100%);
+          border: 1px solid var(--line);
           box-shadow:
-            0 10px 22px rgba(0,0,0,0.10),
-            inset 0 1px 0 rgba(255,255,255,0.92);
+            0 10px 18px rgba(0,0,0,0.10),
+            inset 0 1px 0 rgba(255,255,255,0.24);
         }
 
-        .soft-ring {
-          box-shadow:
-            0 18px 60px rgba(0,0,0,0.14),
-            0 0 0 1px rgba(255,255,255,0.35) inset;
+        .tile-bg {
+          background-image:
+            linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+          background-size: 24px 24px;
+          opacity: 0.20;
+          pointer-events: none;
         }
       `}</style>
 
@@ -108,59 +275,32 @@ export default function Page() {
                   className="min-h-screen w-full flex items-center justify-center relative overflow-hidden"
                   style={{
                     background:
-                        "radial-gradient(circle at 16% 22%, rgba(99,183,255,0.55) 0%, transparent 48%)," +
-                        "radial-gradient(circle at 82% 30%, rgba(46,231,209,0.45) 0%, transparent 52%)," +
-                        "linear-gradient(135deg, #2d6dd8 0%, #2bb5c8 45%, #bfffe7 100%)",
+                        "radial-gradient(circle at 16% 22%, color-mix(in srgb, var(--accent2) 55%, transparent) 0%, transparent 48%)," +
+                        "radial-gradient(circle at 82% 30%, color-mix(in srgb, var(--accent1) 45%, transparent) 0%, transparent 52%)," +
+                        "linear-gradient(135deg, var(--accent3) 0%, var(--accent2) 45%, var(--accent1) 100%)",
                   }}
               >
-                <div className="absolute inset-0 y2k-noise" />
-
-                {/* gentle blobs */}
-                <motion.div
-                    className="absolute -top-24 -left-24 w-80 h-80 rounded-full opacity-25"
-                    animate={{ y: [0, 14, 0], x: [0, 8, 0] }}
-                    transition={{ duration: 7.5, repeat: Infinity }}
-                    style={{
-                      background:
-                          "radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.0) 65%)",
-                      filter: "blur(16px)",
-                    }}
-                />
-                <motion.div
-                    className="absolute -bottom-28 -right-28 w-96 h-96 rounded-full opacity-20"
-                    animate={{ y: [0, -12, 0], x: [0, -8, 0] }}
-                    transition={{ duration: 8.2, repeat: Infinity }}
-                    style={{
-                      background:
-                          "radial-gradient(circle, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.0) 70%)",
-                      filter: "blur(18px)",
-                    }}
-                />
+                {skin.showNoise && <div className="absolute inset-0 y2k-noise" />}
+                {skin.scanlines && <div className="absolute inset-0 scanlines" />}
+                {skin.tileBg && <div className="absolute inset-0 tile-bg" />}
 
                 <div className="relative z-10 w-full max-w-lg px-8">
-                  <div className="chrome rounded-[28px] p-10 soft-ring">
+                  <div className="chrome rounded-[28px] p-10">
                     <div className="flex items-center justify-between mb-8">
                       <div className="flex items-center gap-4">
                         <motion.div
-                            initial={{ rotate: -14, scale: 0.92, opacity: 0 }}
+                            initial={{ rotate: -10, scale: 0.92, opacity: 0 }}
                             animate={{ rotate: 0, scale: 1, opacity: 1 }}
                             transition={{ type: "spring", stiffness: 140, damping: 14 }}
                             className="w-14 h-14 rounded-2xl relative"
                             style={{
                               background:
-                                  "linear-gradient(135deg, #63b7ff 0%, #3f7dff 45%, #2ee7d1 100%)",
+                                  "linear-gradient(135deg, var(--accent2) 0%, var(--accent3) 45%, var(--accent1) 100%)",
                               boxShadow:
-                                  "0 14px 28px rgba(0,0,0,0.14), inset 0 2px 0 rgba(255,255,255,0.55)",
+                                  "0 14px 28px rgba(0,0,0,0.14), inset 0 2px 0 rgba(255,255,255,0.30)",
                             }}
                         >
-                          <div
-                              className="absolute inset-0 rounded-2xl"
-                              style={{
-                                background:
-                                    "linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 50%, rgba(255,255,255,0.12) 100%)",
-                              }}
-                          />
-                          <div className="absolute inset-2 rounded-xl border border-white/50" />
+                          <div className="absolute inset-2 rounded-xl border border-white/30" />
                         </motion.div>
 
                         <div>
@@ -171,7 +311,6 @@ export default function Page() {
                                 fontWeight: 900,
                                 letterSpacing: "-0.02em",
                                 color: "var(--ink)",
-                                textShadow: "0 2px 0 rgba(255,255,255,0.65)",
                               }}
                           >
                             Crix
@@ -184,7 +323,7 @@ export default function Page() {
                                 color: "var(--ink2)",
                               }}
                           >
-                            skin-first • cross-platform • glossy UI
+                            skin-first • cross-platform
                           </div>
                         </div>
                       </div>
@@ -197,7 +336,7 @@ export default function Page() {
                             color: "var(--ink2)",
                           }}
                       >
-                        booting
+                        {skin.name}
                       </div>
                     </div>
 
@@ -217,8 +356,8 @@ export default function Page() {
                         <div
                             className="h-5 rounded-xl overflow-hidden relative"
                             style={{
-                              background: "rgba(99,183,255,0.16)",
-                              border: "1px solid rgba(255,255,255,0.65)",
+                              background: "color-mix(in srgb, var(--accent2) 18%, transparent)",
+                              border: "1px solid var(--line)",
                             }}
                         >
                           <div
@@ -226,7 +365,7 @@ export default function Page() {
                               style={{
                                 width: `${progress}%`,
                                 background:
-                                    "linear-gradient(90deg, #2ee7d1 0%, #63b7ff 35%, #3f7dff 70%, #bfffe7 100%)",
+                                    "linear-gradient(90deg, var(--accent1) 0%, var(--accent2) 40%, var(--accent3) 100%)",
                                 transition: "width 0.08s linear",
                                 boxShadow: "0 10px 22px rgba(0,0,0,0.10)",
                               }}
@@ -238,7 +377,7 @@ export default function Page() {
                               style={{
                                 width: "40%",
                                 background:
-                                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%)",
+                                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%)",
                                 opacity: 0.8,
                               }}
                           />
@@ -248,21 +387,13 @@ export default function Page() {
                       <div className="flex items-center justify-between">
                         <div
                             className="px-3 py-2 rounded-full glossy-pill"
-                            style={{
-                              fontFamily: "Tahoma, sans-serif",
-                              fontSize: 12,
-                              color: "var(--ink2)",
-                            }}
+                            style={{ fontFamily: "Tahoma, sans-serif", fontSize: 12, color: "var(--ink2)" }}
                         >
                           boot.exe
                         </div>
                         <div
                             className="px-3 py-2 rounded-full glossy-pill"
-                            style={{
-                              fontFamily: "Tahoma, sans-serif",
-                              fontSize: 12,
-                              color: "var(--ink2)",
-                            }}
+                            style={{ fontFamily: "Tahoma, sans-serif", fontSize: 12, color: "var(--ink2)" }}
                         >
                           {progress}%
                         </div>
@@ -274,7 +405,7 @@ export default function Page() {
                         style={{
                           fontFamily: "Tahoma, sans-serif",
                           fontSize: 11,
-                          color: "rgba(11,42,74,0.55)",
+                          color: "color-mix(in srgb, var(--ink) 55%, transparent)",
                         }}
                     >
                       © 2025 Crix Framework
@@ -289,7 +420,6 @@ export default function Page() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6 }}
                   className="min-h-screen w-full overflow-y-auto"
-                  style={{ background: "#f2f8ff" }}
               >
                 {/* Header */}
                 <div className="fixed top-0 left-0 right-0 z-50">
@@ -297,8 +427,8 @@ export default function Page() {
                       className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between"
                       style={{
                         background:
-                            "linear-gradient(90deg, rgba(99,183,255,0.42) 0%, rgba(46,231,209,0.38) 45%, rgba(191,255,231,0.36) 100%)",
-                        borderBottom: "1px solid rgba(255,255,255,0.68)",
+                            "linear-gradient(90deg, color-mix(in srgb, var(--accent2) 35%, transparent) 0%, color-mix(in srgb, var(--accent1) 30%, transparent) 55%, color-mix(in srgb, var(--accent3) 18%, transparent) 100%)",
+                        borderBottom: "1px solid var(--line)",
                         boxShadow: "0 18px 40px rgba(0,0,0,0.10)",
                         backdropFilter: "blur(14px)",
                         borderRadius: 22,
@@ -310,12 +440,12 @@ export default function Page() {
                           className="w-10 h-10 rounded-2xl relative"
                           style={{
                             background:
-                                "linear-gradient(135deg, #63b7ff 0%, #3f7dff 45%, #2ee7d1 100%)",
+                                "linear-gradient(135deg, var(--accent2) 0%, var(--accent3) 45%, var(--accent1) 100%)",
                             boxShadow:
-                                "0 12px 24px rgba(0,0,0,0.12), inset 0 2px 0 rgba(255,255,255,0.55)",
+                                "0 12px 24px rgba(0,0,0,0.12), inset 0 2px 0 rgba(255,255,255,0.25)",
                           }}
                       >
-                        <div className="absolute inset-1.5 rounded-xl border border-white/55" />
+                        <div className="absolute inset-1.5 rounded-xl border border-white/20" />
                       </div>
                       <div>
                         <div
@@ -341,28 +471,73 @@ export default function Page() {
                     </a>
 
                     <nav className="flex items-center gap-2">
-                      {[
-                        { label: "Docs", href: "/docs" },
-                        { label: "Builder", href: "/builder" },
-                      ].map((item) => (
-                          <a
-                              key={item.label}
-                              href={item.href}
-                              className="px-4 py-2 rounded-full transition-all hover:scale-[1.02] active:scale-[0.99]"
-                              style={{
-                                fontFamily: "Tahoma, sans-serif",
-                                fontSize: 13,
-                                color: "var(--ink)",
-                                background:
-                                    "linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.55) 100%)",
-                                border: "1px solid rgba(255,255,255,0.82)",
-                                boxShadow:
-                                    "0 10px 18px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.92)",
-                              }}
-                          >
-                            {item.label}
-                          </a>
-                      ))}
+                      <a
+                          href="/docs"
+                          className="px-4 py-2 rounded-full transition-all hover:scale-[1.02] active:scale-[0.99]"
+                          style={{
+                            fontFamily: "Tahoma, sans-serif",
+                            fontSize: 13,
+                            color: "var(--ink)",
+                            background:
+                                "linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.55) 100%)",
+                            border: "1px solid var(--line)",
+                            boxShadow:
+                                "0 10px 18px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.22)",
+                          }}
+                      >
+                        Docs
+                      </a>
+                      <a
+                          href="/builder"
+                          className="px-4 py-2 rounded-full transition-all hover:scale-[1.02] active:scale-[0.99]"
+                          style={{
+                            fontFamily: "Tahoma, sans-serif",
+                            fontSize: 13,
+                            color: "var(--ink)",
+                            background:
+                                "linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.55) 100%)",
+                            border: "1px solid var(--line)",
+                            boxShadow:
+                                "0 10px 18px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.22)",
+                          }}
+                      >
+                        Builder
+                      </a>
+
+                      {/* Skin toggle */}
+                      <div className="ml-2 flex items-center gap-2">
+                        <div
+                            className="px-3 py-2 rounded-full glossy-pill"
+                            style={{
+                              fontFamily: "Tahoma, sans-serif",
+                              fontSize: 12,
+                              color: "var(--ink2)",
+                            }}
+                        >
+                          Skin
+                        </div>
+
+                        <select
+                            value={skinId}
+                            onChange={(e) => setSkinId(e.target.value as SkinId)}
+                            className="px-4 py-2 rounded-full outline-none"
+                            style={{
+                              fontFamily: "Tahoma, sans-serif",
+                              fontSize: 13,
+                              color: "var(--ink)",
+                              background:
+                                  "linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.55) 100%)",
+                              border: "1px solid var(--line)",
+                              boxShadow:
+                                  "0 10px 18px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.22)",
+                            }}
+                        >
+                          <option value="y2k">Y2K Aqua</option>
+                          <option value="terminal">Terminal</option>
+                          <option value="dark">Dark Glass</option>
+                          <option value="neocities">Neocities</option>
+                        </select>
+                      </div>
                     </nav>
                   </div>
                 </div>
@@ -375,23 +550,17 @@ export default function Page() {
                         alt="Crix Background"
                         className="w-full h-full object-cover"
                     />
-                    <div
-                        className="absolute inset-0"
-                        style={{
-                          background:
-                              "radial-gradient(circle at 20% 25%, rgba(46,231,209,0.42) 0%, transparent 55%)," +
-                              "radial-gradient(circle at 75% 30%, rgba(99,183,255,0.45) 0%, transparent 55%)," +
-                              "linear-gradient(135deg, rgba(63,125,255,0.66) 0%, rgba(11,42,74,0.50) 42%, rgba(191,255,231,0.22) 100%)",
-                        }}
-                    />
-                    <div className="absolute inset-0 y2k-noise" />
+                    <div className="absolute inset-0" style={{ background: skin.heroOverlay }} />
+                    {skin.showNoise && <div className="absolute inset-0 y2k-noise" />}
+                    {skin.scanlines && <div className="absolute inset-0 scanlines" />}
+                    {skin.tileBg && <div className="absolute inset-0 tile-bg" />}
                   </div>
 
                   <div className="relative z-10 max-w-7xl mx-auto px-6 py-24">
                     <motion.div
-                        initial={{ y: 24, opacity: 0 }}
+                        initial={{ y: 22, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.65 }}
+                        transition={{ duration: 0.6 }}
                         className="max-w-3xl"
                     >
                       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full chrome">
@@ -402,7 +571,7 @@ export default function Page() {
                           color: "var(--ink2)",
                         }}
                     >
-                      glossy • chrome • skins
+                      {skin.name}
                     </span>
                       </div>
 
@@ -445,9 +614,9 @@ export default function Page() {
                               color: "var(--ink)",
                               background:
                                   "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.70) 100%)",
-                              border: "1px solid rgba(255,255,255,0.9)",
+                              border: "1px solid rgba(255,255,255,0.35)",
                               boxShadow:
-                                  "0 18px 40px rgba(0,0,0,0.16), inset 0 2px 0 rgba(255,255,255,0.92)",
+                                  "0 18px 40px rgba(0,0,0,0.16), inset 0 2px 0 rgba(255,255,255,0.22)",
                             }}
                         >
                           Read the Docs
@@ -463,8 +632,8 @@ export default function Page() {
                               fontWeight: 800,
                               color: "#ffffff",
                               background:
-                                  "linear-gradient(90deg, rgba(46,231,209,0.92) 0%, rgba(99,183,255,0.92) 40%, rgba(63,125,255,0.92) 100%)",
-                              border: "1px solid rgba(255,255,255,0.40)",
+                                  "linear-gradient(90deg, var(--accent1) 0%, var(--accent2) 40%, var(--accent3) 100%)",
+                              border: "1px solid rgba(255,255,255,0.25)",
                               boxShadow: "0 20px 44px rgba(0,0,0,0.18)",
                               textShadow: "0 2px 8px rgba(0,0,0,0.25)",
                             }}
@@ -476,16 +645,10 @@ export default function Page() {
                   </div>
                 </div>
 
-                {/* Explanation section */}
-                <div
-                    style={{
-                      background:
-                          "radial-gradient(circle at 18% 18%, rgba(46,231,209,0.12) 0%, transparent 60%)," +
-                          "radial-gradient(circle at 82% 25%, rgba(99,183,255,0.12) 0%, transparent 60%)," +
-                          "linear-gradient(180deg, #f2f8ff 0%, #eafcff 50%, #f6fffb 100%)",
-                    }}
-                >
-                  <div className="max-w-7xl mx-auto px-6 py-20">
+                {/* Explanation */}
+                <div className="relative">
+                  {skin.tileBg && <div className="absolute inset-0 tile-bg" />}
+                  <div className="relative max-w-7xl mx-auto px-6 py-20">
                     <motion.div
                         initial={{ y: 18, opacity: 0 }}
                         whileInView={{ y: 0, opacity: 1 }}
@@ -494,7 +657,8 @@ export default function Page() {
                         className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start"
                     >
                       <div className="chrome rounded-[30px] p-10 relative overflow-hidden">
-                        <div className="absolute inset-0 y2k-noise" />
+                        {skin.showNoise && <div className="absolute inset-0 y2k-noise" />}
+                        {skin.scanlines && <div className="absolute inset-0 scanlines" />}
                         <div className="relative">
                           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glossy-pill">
                         <span
@@ -549,9 +713,9 @@ export default function Page() {
                                       color: "var(--ink)",
                                       background:
                                           "linear-gradient(180deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.58) 100%)",
-                                      border: "1px solid rgba(255,255,255,0.85)",
+                                      border: "1px solid rgba(255,255,255,0.25)",
                                       boxShadow:
-                                          "0 10px 18px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.92)",
+                                          "0 10px 18px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.18)",
                                     }}
                                 >
                             {tag}
@@ -592,7 +756,8 @@ export default function Page() {
                                 transition={{ delay: i * 0.06, duration: 0.45 }}
                                 className="chrome rounded-[26px] p-7 relative overflow-hidden"
                             >
-                              <div className="absolute inset-0 y2k-noise" />
+                              {skin.showNoise && <div className="absolute inset-0 y2k-noise" />}
+                              {skin.scanlines && <div className="absolute inset-0 scanlines" />}
                               <div className="relative">
                                 <h3
                                     className="text-xl"
@@ -630,7 +795,8 @@ export default function Page() {
                             color: "var(--ink2)",
                           }}
                       >
-                        © 2025 <span style={{ fontWeight: 800, color: "var(--ink)" }}>Crix</span>
+                        © 2025{" "}
+                        <span style={{ fontWeight: 800, color: "var(--ink)" }}>Crix</span>
                       </div>
                     </div>
                   </div>
